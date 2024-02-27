@@ -1,17 +1,34 @@
 import pygame
 
-print("Hello world")
-
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen_width = 640
+screen_height = 640
+screen_center = screen_width / 2, screen_height / 2
+screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 running = True
 dt = 0
 
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+# Board setup
+tile_size = 200 # Length of each side of each tile in the board
+tile_count = 3 # Number of tiles in a row/column of the board
+tile_border_width = 4
+board = [[]]
 
-while running:
+def draw_board():
+    board_square = pygame.Rect(0, 0, tile_size * tile_count, tile_size * tile_count)
+    board_square.center = screen_center
+    pygame.draw.rect(screen, "white", board_square) 
+    for row in range(tile_count):
+        for column in range(tile_count): 
+            tile = pygame.Rect(column * tile_size, row * tile_size, tile_size, tile_size)
+            tile.top += board_square.top
+            tile.left += board_square.left
+            tile.inflate_ip(-tile_border_width, -tile_border_width)
+            pygame.draw.rect(screen, "black", tile) 
+
+while running: # each frame
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -20,19 +37,7 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("white")
-
-    pygame.draw.circle(screen, "red", player_pos, 40)
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
-
+    draw_board()
     # flip() the display to put your work on screen
     pygame.display.flip()
 
