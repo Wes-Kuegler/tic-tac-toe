@@ -20,8 +20,8 @@ class BoardState(Enum):
     
 # Board setup
 tile_size = 200 # Length of each side of each tile in the board (minus the border width)
+tile_border_width = 3
 tile_count = 3 # Number of tiles in a row/column of the board
-tile_border_width = 4
 board = [[]]
 
 # Board image setup (for drawing tile contents)
@@ -41,10 +41,11 @@ def draw_board():
     for row in range(tile_count):
         for column in range(tile_count): 
             tile = pygame.Rect(column * tile_size, row * tile_size, tile_size, tile_size)
-            tile.top += board_square.top
+            tile.top += board_square.top # Adjust by board position
             tile.left += board_square.left
-            tile.inflate_ip(-tile_border_width, -tile_border_width) # Shrink tile to show border
+            tile.inflate_ip(-tile_border_width * 2, -tile_border_width * 2) # Shrink tile to show border
             pygame.draw.rect(screen, "black", tile) 
+
             icon = None
             if board[row][column] == BoardState.X:
                 icon = icon_x
@@ -52,12 +53,14 @@ def draw_board():
                 icon = icon_o
 
             if icon is not None:
-                icon_centered = icon.get_rect()
-                icon_centered = icon_centered.fit(tile)
-                # icon_centered.center = tile.center
-                screen.blit(icon, icon_centered)
+                icon_rect = icon.get_rect()
+                icon_rect.center = tile.center # Unsure why this produces an off-center image; font issue?
+                icon_rect.top += 13 # Adjust for font's center offset
+                screen.blit(icon, icon_rect)
 
+# Game setup
 setup_board()
+
 while running: # each frame
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
