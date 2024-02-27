@@ -1,4 +1,5 @@
 import pygame
+import random
 from pygame import MOUSEBUTTONDOWN
 from pygame import Rect
 from enum import Enum
@@ -30,6 +31,16 @@ board_tiles = [] # For the actual rects being drawn to screen (for click detecti
 font = pygame.font.SysFont(None, 326)
 icon_x = font.render("X", True, "blue")
 icon_o = font.render("O", True, "blue")
+
+# End State Text
+winner = font.render("Winner!", True, "blue")
+loser = font.render("Loser!", True, "blue")
+
+# Game state
+player_turn = True
+player_shape = BoardState.X
+ai_shape = BoardState.O
+game_over = False
 
 def setup_board():
     for row in range(tile_count):
@@ -63,33 +74,56 @@ def draw_board():
                 icon_rect.top += 13 # Adjust for font's center offset
                 screen.blit(icon, icon_rect)
 
-def make_move(tile_index:tuple, move:BoardState): 
-    board[tile_index[0]][tile_index[1]] = move
+def make_move(row, column, move:BoardState): 
+    board[row][column] = move
 
-# Return the row,column index of the clicked tile, else None
-def find_clicked_tile(position) -> tuple:
+def is_legal_move(row, column) -> bool:
+    return board[row][column] == BoardState.EMPTY
+
+def make_ai_move() -> bool: # Return true if a move was made, else false(no legal moves)
+    legal_moves = []
+    for row in range(tile_count):
+        for column in range(tile_count): 
+            if is_legal_move(row, column):
+                legal_moves.append((row,column))
+    
+    if len(legal_moves) == 0:
+        return False
+    else:
+        random_move = legal_moves[random.randrange(0, len(legal_moves))]
+        make_move(random_move[0], random_move[1], ai_shape)
+        return True
+
+# Return the row,column index of the tile at position (if any), else None
+def find_tile(position) -> tuple:
     for row in range(tile_count):
         for column in range(tile_count): 
             if board_tiles[row][column].collidepoint(position):
                 return row,column
-            
     return None
 
 # Game setup
 setup_board()
 
 while running: # each frame
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == MOUSEBUTTONDOWN:
-            pressed_buttons = pygame.mouse.get_pressed()
-            if pressed_buttons[0]: # left mouse click
-                clicked_tile = find_clicked_tile(pygame.mouse.get_pos())
-                if clicked_tile is not None: # If a tile was clicked on
-                    make_move(clicked_tile, BoardState.X)
+            if player_turn: #Can't place on AI turn
+                pressed_buttons = pygame.mouse.get_pressed()
+                if pressed_buttons[0]: # left mouse click
+                    clicked_tile = find_tile(pygame.mouse.get_pos())
+                    if clicked_tile is not None: # If a tile was clicked on
+                        row = clicked_tile[0]
+                        column = clicked_tile[1]
+                        if is_legal_move(row, column):
+                            make_move(row, column, BoardState.X)
+                            player_turn = False
+    
+    if not player_turn and not game_over: # AI turn
+        make_ai_move()
+        player_turn = True
 
     screen.fill("white") # Color fill to remove last frame
 
