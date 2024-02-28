@@ -131,7 +131,22 @@ def victory_check() -> bool: # Is the game over?
         elif get_column(column).count(ai_shape) == tile_count: 
             ai_victory = True
     
-    # still need to check diagonals
+    diagonal_top_left = []
+    diagonal_top_right = []
+    for i in range(tile_count):
+        diagonal_top_left.append(board[i][i])
+        diagonal_top_right.append(board[-i][-i])
+
+    if diagonal_top_left.count(player_shape) == tile_count:
+            player_victory = True
+    elif diagonal_top_left.count(ai_shape) == tile_count: 
+        ai_victory = True
+
+    if diagonal_top_right.count(player_shape) == tile_count:
+        player_victory = True
+    elif diagonal_top_right.count(ai_shape) == tile_count: 
+        ai_victory = True
+
     return player_victory or ai_victory
 
 
