@@ -142,10 +142,10 @@ def game_over_check(): # Set state booleans if game is over
     diagonal_top_right = []
     for i in range(tile_count):
         diagonal_top_left.append(board[i][i])
-        diagonal_top_right.append(board[-i][-i])
+        diagonal_top_right.append(board[i][-(i+1)])
 
     if diagonal_top_left.count(player_shape) == tile_count:
-            player_victory = True
+        player_victory = True
     elif diagonal_top_left.count(ai_shape) == tile_count: 
         ai_victory = True
 
