@@ -32,8 +32,9 @@ icon_x = font.render("X", True, "white")
 icon_o = font.render("O", True, "white")
 
 # End state text images
-winner = font.render("Winner!", True, "red")
-loser = font.render("Loser!", True, "red")
+winner_text = font.render("Winner!", True, "red")
+loser_text = font.render("Loser!", True, "red")
+tie_text = font.render("Tie!", True, "red")
 
 # Game state
 player_turn = True
@@ -41,6 +42,8 @@ player_shape = BoardState.X
 ai_shape = BoardState.O
 player_victory = False
 ai_victory = False
+tie = False
+move_count = 0
 
 def setup_board():
     for row in range(tile_count):
@@ -76,13 +79,17 @@ def draw_board():
                 screen.blit(icon, icon_rect)
                 
     if player_victory:
-        screen.blit(winner, winner.get_rect(center = screen_center))
+        screen.blit(winner_text, winner_text.get_rect(center = screen_center))
     elif ai_victory:
-        screen.blit(loser, loser.get_rect(center = screen_center))
+        screen.blit(loser_text, loser_text.get_rect(center = screen_center))
+    elif tie:
+        screen.blit(tie_text, tie_text.get_rect(center = screen_center))
 
 def move_and_check(position:tuple, move:BoardState): # Make a move and check for a winner
+    global move_count
     board[position[0]][position[1]] = move
-    victory_check()
+    move_count += 1
+    game_over_check()
 
 def is_legal_move(position:tuple) -> bool:
     return board[position[0]][position[1]] == BoardState.EMPTY
@@ -116,9 +123,11 @@ def get_column(index, matrix:list = board) -> list:
         column.append(row[index])
     return column
 
-def victory_check() -> bool: # Is the game over?
+def game_over_check(): # Set state booleans if game is over
     global player_victory
     global ai_victory
+    global tie
+
     for row in board:
         if row.count(player_shape) == tile_count: #3 in a row!
             player_victory = True
@@ -147,9 +156,10 @@ def victory_check() -> bool: # Is the game over?
     elif diagonal_top_right.count(ai_shape) == tile_count: 
         ai_victory = True
 
-    return player_victory or ai_victory
-
-
+    if not player_victory and not ai_victory:
+        if move_count == tile_count * tile_count:
+            tie = True
+            
 # Game setup
 setup_board()
 
