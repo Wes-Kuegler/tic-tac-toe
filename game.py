@@ -124,9 +124,7 @@ def get_column(index, matrix:list = board) -> list:
     return column
 
 def game_over_check(): # Set state booleans if game is over
-    global player_victory
-    global ai_victory
-    global tie
+    global player_victory, ai_victory, tie
 
     for row in board:
         if row.count(player_shape) == tile_count: #3 in a row!
