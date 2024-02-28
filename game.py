@@ -94,7 +94,7 @@ def move_and_check(position:tuple, move:BoardState): # Make a move and check for
 def is_legal_move(position:tuple) -> bool:
     return board[position[0]][position[1]] == BoardState.EMPTY
 
-def make_ai_move() -> bool: # Return true if a move was made, else false(no legal moves)
+def make_ai_move():
     legal_moves = []
     for row in range(tile_count):
         for column in range(tile_count): 
@@ -102,12 +102,9 @@ def make_ai_move() -> bool: # Return true if a move was made, else false(no lega
             if is_legal_move(move):
                 legal_moves.append(move)
     
-    if len(legal_moves) == 0:
-        return False
-    else:
+    if len(legal_moves) > 0:
         random_move = legal_moves[random.randrange(0, len(legal_moves))]
         move_and_check(random_move, ai_shape)
-        return True
 
 # Return the row,column index of the tile at position (if any), else None
 def find_tile(position) -> tuple:
